@@ -4,6 +4,7 @@ Created on Mon Oct 12 19:51:43 2020
 
 @author: chichi
 """
+from asyncio import events
 import tkinter as tk
 import math
 import requests
@@ -11,41 +12,8 @@ import requests
 
 window = tk.Tk()
 window.title('lineNotify')
-window.geometry('800x600')
+window.geometry('650x300')
 #window.configure(background='white')
-
-def line():
-    token="iRdteMVfnkxhkPzUZdh3D2kuzZzjOYUqBeG1cQ-GzDV"
-    
-    headers = {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-     
-    params = {"message": "訊息發送成功!"}
-     
-    r = requests.post("https://notify-api.line.me/api/notify",
-                      headers=headers, params=params)
-    print(r.status_code)
-    
-def IFTTT(title,content,link):
-    key="iRdteMVfnkxhkPzUZdh3D2kuzZzjOYUqBeG1cQ-GzDV"    
-    url="https://maker.ifttt.com/trigger/line/with/key/"+key+"?value1="+title+"&value2="+content+"&value3="+link
-    r = requests.post(url)
-    print(r.status_code)
-
-def IFTTT2():
-    key="cAYCdvaXFbpzYuwnzmHiEOActive"
-    key2="c9665JkAJ_Mf4WEcB_8nmd"
-    title=title_entry.get()
-    content=content_entry.get("1.0", "end")
-    link=link_entry.get()
-    url="https://maker.ifttt.com/trigger/line/with/key/"+key2+"?value1="+title+"&value2="+content+"&value3="+link
-    r = requests.post(url)
-    result_label.configure(text=r.status_code)
-    print(r.status_code)
-
-
 header_label = tk.Label(window, text='line通知')
 header_label.pack()
 
@@ -73,12 +41,38 @@ link_entry.pack(side=tk.LEFT)
 result_label = tk.Label(window)
 result_label.pack()
 
-calculate_btn = tk.Button(window, text='發送訊息', command=IFTTT2)
-calculate_btn.pack()
+def line_notify():
+    token = "輸入你的token"
+    headers = {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/x-www-form-urlencoded"
+        }    
+    params = {"message": "訊息發送成功!"}
+    
+    r = requests.post("https://notify-api.line.me/api/notify", headers=headers, params=params)
+    print(r.status_code)
+    return r.status_code
+    
+def IFTTT_line_notify(event, title, content, link):  
+    """
+    IFTTT
+    If WebHook receive a web request
+    Then Line send message
+    """
+    key = "輸入你的key"  
+    url = f"https://maker.ifttt.com/trigger/{event}/with/key/{key}?value1={title}&value2={content}&value3={link}"
+    r = requests.post(url)
+    print(r.status_code)
+    return r.status_code
+
+def send_message():
+    title=title_entry.get()
+    content=content_entry.get("1.0", "end")
+    link=link_entry.get()
+    event = 'line_notify'
+    IFTTT_line_notify(event, title, content, link)
+
+calculate_btn = tk.Button(window, text='發送訊息', command=send_message)
+calculate_btn.pack()   
 
 window.mainloop()
-if __name__ == '__main__':
-    title="好消息!"
-    content="訊息發送成功!"
-    link="https://web.cyut.edu.tw/index.php?Lang=zh-tw"
-    #IFTTT(title,content,link)
